@@ -1,0 +1,23 @@
+[
+  {
+    "name": "nextjs80",
+    "image": "nginx:latest",
+    "cpu":1024,
+    "memory": 2048,
+    "portMappings": [
+      {
+        "containerPort": 80,
+        "protocol": "http"
+      }
+    ],
+    "essential": true,
+    "healthCheck":{
+      "command":[ "CMD-SHELL", "curl -f http://localhost/ || exit 1" ],
+      "interval":5,
+      "timeout":5,
+      "retries":2,
+      "startPeriod":5
+    }
+  }
+]
+
