@@ -11,13 +11,21 @@ resource "aws_lb_target_group" "webapp" {
   name        = "ecsWebAppGroup"
   port        = var.container_port
   protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = var.vpc_id
+}
+
+resource "aws_lb_target_group" "webapp_ec2" {
+  name        = "ecsWebAppGroupEc2"
+  port        = var.container_port
+  protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = var.vpc_id
 }
 
 resource "aws_autoscaling_attachment" "lb" {
   autoscaling_group_name = aws_autoscaling_group.group.name
-  lb_target_group_arn    = aws_lb_target_group.webapp.arn
+  lb_target_group_arn    = aws_lb_target_group.webapp_ec2.arn
 }
 
 resource "aws_lb_listener" "http" {
