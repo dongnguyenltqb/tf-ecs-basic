@@ -11,7 +11,7 @@ resource "aws_lb_target_group" "webapp" {
   name        = "ecsWebAppGroup"
   port        = var.container_port
   protocol    = "HTTP"
-  target_type = "ip"
+  target_type = "instance"
   vpc_id      = var.vpc_id
 }
 

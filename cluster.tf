@@ -74,7 +74,7 @@ EOT
 resource "aws_autoscaling_group" "group" {
   availability_zones    = var.availability_zones
   health_check_type     = "ELB"
-  desired_capacity      = 1
+  desired_capacity      = 0
   max_size              = 5
   min_size              = 0
   protect_from_scale_in = true
