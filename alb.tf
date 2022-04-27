@@ -15,6 +15,11 @@ resource "aws_lb_target_group" "webapp" {
   vpc_id      = var.vpc_id
 }
 
+resource "aws_autoscaling_attachment" "lb" {
+  autoscaling_group_name = aws_autoscaling_group.group.name
+  lb_target_group_arn    = aws_lb_target_group.webapp.arn
+}
+
 resource "aws_lb_listener" "http" {
   port              = "80"
   load_balancer_arn = aws_lb.svc.arn
