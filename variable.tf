@@ -43,7 +43,7 @@ variable "container_port" {
 }
 
 // Check ami here
-// https://docs.amazonaws.cn/en_us/AmazonECS/latest/developerguide/ecs-ami-versions.html
+// https://docs.aws.amazon.com/AmazonECS/latest/developerguide/ecs-optimized_AMI.html
 variable "ec2_image_id" {
   type = string
 }

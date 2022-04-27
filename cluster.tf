@@ -8,6 +8,7 @@ resource "aws_ecs_cluster" "cluster" {
 resource "aws_ecs_cluster_capacity_providers" "fargate" {
   cluster_name = aws_ecs_cluster.cluster.name
 
+  # capacity_providers = ["FARGATE"]
   capacity_providers = ["FARGATE", aws_ecs_capacity_provider.ec2.name]
 
   default_capacity_provider_strategy {
@@ -18,14 +19,14 @@ resource "aws_ecs_cluster_capacity_providers" "fargate" {
 }
 
 resource "aws_ecs_capacity_provider" "ec2" {
-  name = "ec2"
+  name = "ec2_t1"
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.group.arn
     managed_termination_protection = "ENABLED"
 
     managed_scaling {
-      maximum_scaling_step_size = 1
+      maximum_scaling_step_size = 10
       minimum_scaling_step_size = 1
       status                    = "ENABLED"
       target_capacity           = 50
@@ -36,8 +37,18 @@ resource "aws_ecs_capacity_provider" "ec2" {
 resource "aws_launch_template" "ecs" {
   name_prefix            = "ecsInstanceTemplate"
   image_id               = var.ec2_image_id
-  instance_type          = "t3.large"
+  instance_type          = "t3.medium"
   vpc_security_group_ids = [aws_security_group.ec2_group.id]
+  user_data = base64encode(format(<<EOT
+  #!/bin/bash
+  echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
+EOT
+  , var.cluster_name))
+  iam_instance_profile {
+    // only use name or arn
+    # name = aws_iam_instance_profile.ecs.name
+    arn = aws_iam_instance_profile.ecs.arn
+  }
   monitoring {
     enabled = false
   }
@@ -63,10 +74,10 @@ resource "aws_launch_template" "ecs" {
 resource "aws_autoscaling_group" "group" {
   availability_zones    = var.availability_zones
   health_check_type     = "ELB"
-  desired_capacity      = 0
-  max_size              = 3
+  desired_capacity      = 1
+  max_size              = 5
   min_size              = 0
-  protect_from_scale_in = false
+  protect_from_scale_in = true
   launch_template {
     id      = aws_launch_template.ecs.id
     version = "$Latest"
