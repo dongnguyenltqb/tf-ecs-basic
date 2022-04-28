@@ -21,6 +21,12 @@ resource "aws_lb_target_group" "webapp_ec2" {
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = var.vpc_id
+  health_check {
+    enabled  = true
+    path     = "/"
+    port     = var.container_port
+    protocol = "HTTP"
+  }
 }
 
 resource "aws_autoscaling_attachment" "lb" {
@@ -57,3 +63,20 @@ resource "aws_lb_listener_rule" "http" {
     }
   }
 }
+
+resource "aws_lb_listener_rule" "httpec2" {
+
+  listener_arn = aws_lb_listener.http.arn
+  priority     = 101
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.webapp_ec2.arn
+  }
+  condition {
+    path_pattern {
+      values = ["/ec2"]
+    }
+  }
+}
+

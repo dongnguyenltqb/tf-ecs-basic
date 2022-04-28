@@ -42,7 +42,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role_a
 }
 
 resource "aws_iam_instance_profile" "ecs" {
-  name = "ecsInstanceProfileRoleForT1"
+  name = format("ecsInstanceProfileRoleFor%s", var.cluster_name)
   role = aws_iam_role.ec2_instances.name
 }
 

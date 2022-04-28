@@ -47,11 +47,12 @@ resource "aws_security_group" "ec2_group" {
   vpc_id      = var.vpc_id
 
   ingress {
-    description     = "allow traffic to container port from load balancer"
-    from_port       = var.container_port
-    to_port         = var.container_port
-    protocol        = "TCP"
-    security_groups = [aws_security_group.alb.id]
+    description = "allow traffic to container port from load balancer"
+    from_port   = var.container_port
+    to_port     = var.container_port
+    protocol    = "TCP"
+    # security_groups = [aws_security_group.alb.id]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {

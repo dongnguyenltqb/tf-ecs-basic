@@ -13,3 +13,7 @@ output "image_url" {
 output "execution_task_role_arn" {
   value = aws_iam_role.execution_task.arn
 }
+
+output "ecs_instance_role_arn" {
+  value = aws_iam_role.ec2_instances.arn
+}

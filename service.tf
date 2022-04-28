@@ -3,7 +3,7 @@ resource "aws_ecs_service" "svc" {
   cluster                            = aws_ecs_cluster.cluster.id
   task_definition                    = aws_ecs_task_definition.app.arn
   launch_type                        = "FARGATE"
-  desired_count                      = 0
+  desired_count                      = 1
   deployment_minimum_healthy_percent = 0
   deployment_maximum_percent         = 100
   force_new_deployment               = true
@@ -26,7 +26,7 @@ resource "aws_ecs_service" "svc2" {
   cluster                            = aws_ecs_cluster.cluster.id
   task_definition                    = aws_ecs_task_definition.app_ec2.arn
   launch_type                        = "EC2"
-  desired_count                      = 0
+  desired_count                      = 1
   deployment_minimum_healthy_percent = 0
   // roling update one by one
   deployment_maximum_percent = 100

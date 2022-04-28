@@ -37,7 +37,7 @@ resource "aws_ecs_task_definition" "app_ec2" {
   requires_compatibilities = ["EC2"]
   cpu                      = 1024
   memory                   = 2048
-  network_mode             = "bridge"
+  network_mode             = "host"
   runtime_platform {
     cpu_architecture        = "X86_64"
     operating_system_family = "LINUX"
@@ -53,7 +53,7 @@ resource "aws_ecs_task_definition" "app_ec2" {
         "portMappings" : [
           {
             "containerPort" : var.container_port,
-            "hostPort" : 0,
+            "hostPort" : var.container_port,
             "protocol" : "tcp"
           }
         ],
