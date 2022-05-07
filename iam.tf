@@ -1,3 +1,4 @@
+// the task execution role that the Amazon ECS container agent and the Docker daemon can assume.
 resource "aws_iam_role" "execution_task" {
   name = "ecsExcutionTaskRole"
   assume_role_policy = jsonencode({
@@ -19,7 +20,7 @@ resource "aws_iam_role_policy_attachment" "AmazonECSTaskExecutionRolePolicy_exec
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
 }
 
-
+// the instance role help ec2 instance register itself to ecs cluster
 resource "aws_iam_role" "ec2_instances" {
   name = "ecsInstanceRole"
   assume_role_policy = jsonencode({
@@ -44,6 +45,45 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role_a
 resource "aws_iam_instance_profile" "ecs" {
   name = format("ecsInstanceProfileRoleFor%s", var.cluster_name)
   role = aws_iam_role.ec2_instances.name
+}
+
+
+// allows your Amazon ECS container task to make calls to other AWS services
+resource "aws_iam_role" "task" {
+  name = "ecs_task_role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ecs-tasks.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_policy" "task_policy" {
+  name = "task_policy"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = [
+          "ec2:Describe*",
+        ]
+        Effect   = "Allow"
+        Resource = "*"
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "task_policy_attachment" {
+  role       = aws_iam_role.task.name
+  policy_arn = aws_iam_policy.task_policy.arn
 }
 
 

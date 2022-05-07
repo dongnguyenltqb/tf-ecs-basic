@@ -6,9 +6,7 @@ resource "aws_ecs_cluster" "cluster" {
 }
 
 resource "aws_ecs_cluster_capacity_providers" "fargate" {
-  cluster_name = aws_ecs_cluster.cluster.name
-
-  # capacity_providers = ["FARGATE"]
+  cluster_name       = aws_ecs_cluster.cluster.name
   capacity_providers = ["FARGATE", aws_ecs_capacity_provider.ec2.name]
 
   default_capacity_provider_strategy {
@@ -23,7 +21,7 @@ resource "aws_ecs_capacity_provider" "ec2" {
 
   auto_scaling_group_provider {
     auto_scaling_group_arn         = aws_autoscaling_group.group.arn
-    managed_termination_protection = "ENABLED"
+    managed_termination_protection = "DISABLED"
 
     managed_scaling {
       maximum_scaling_step_size = 10

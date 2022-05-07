@@ -43,6 +43,7 @@ resource "aws_ecs_task_definition" "app_ec2" {
     operating_system_family = "LINUX"
   }
   execution_role_arn = aws_iam_role.execution_task.arn
+  task_role_arn      = aws_iam_role.task.arn
   container_definitions = jsonencode(
     [
       {

@@ -14,7 +14,7 @@ EOT
     arn = aws_iam_instance_profile.ecs.arn
   }
   monitoring {
-    enabled = false
+    enabled = true
   }
   // block_device_mappings is for additional bock devices.
   // to change default setting 

@@ -9,7 +9,6 @@ output "image_url" {
   value = var.image_url
 }
 
-
 output "execution_task_role_arn" {
   value = aws_iam_role.execution_task.arn
 }
