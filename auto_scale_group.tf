@@ -42,7 +42,6 @@ resource "aws_autoscaling_group" "group" {
   health_check_type     = "ELB"
   max_size              = 100
   min_size              = 0
-  desired_capacity      = 2
   protect_from_scale_in = false
   force_delete          = true
   tag {
