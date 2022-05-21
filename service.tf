@@ -29,11 +29,11 @@ resource "aws_ecs_service" "be" {
   cluster                            = aws_ecs_cluster.cluster.id
   task_definition                    = aws_ecs_task_definition.be.arn
   launch_type                        = "EC2"
-  desired_count                      = 1
+  desired_count                      = 2
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 500
   force_new_deployment               = true
-  wait_for_steady_state              = true
+  wait_for_steady_state              = false
   deployment_circuit_breaker {
     enable   = true
     rollback = false
