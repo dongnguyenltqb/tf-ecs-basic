@@ -1,5 +1,5 @@
-resource "aws_ecs_task_definition" "app" {
-  family                   = var.task_definition_family
+resource "aws_ecs_task_definition" "fe" {
+  family                   = var.fe_task_definition_family
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
   memory                   = 2048
@@ -32,8 +32,11 @@ resource "aws_ecs_task_definition" "app" {
 }
 
 
-resource "aws_ecs_task_definition" "app_ec2" {
-  family                   = var.task_ec2_definition_family
+resource "aws_ecs_task_definition" "be" {
+  depends_on = [
+    aws_secretsmanager_secret.app
+  ]
+  family                   = var.be_task_definition_family
   requires_compatibilities = ["EC2"]
   cpu                      = 1024
   memory                   = 2048
@@ -51,6 +54,13 @@ resource "aws_ecs_task_definition" "app_ec2" {
         "image" : var.image_url,
         "cpu" : 1024,
         "memory" : 2048,
+        "secrets" : [
+          for key,value in var.secrets : {
+            "name" : key,
+            "valueFrom" : format("%s:%s:%s:", aws_secretsmanager_secret.app.id, key, tolist(aws_secretsmanager_secret_version.version.version_stages)[0])
+          }
+        ],
+
         "portMappings" : [
           {
             "containerPort" : var.container_port,

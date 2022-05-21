@@ -1,5 +1,5 @@
 resource "aws_lb" "svc" {
-  name                       = "webapp"
+  name                       = "app"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.alb.id]
@@ -7,16 +7,22 @@ resource "aws_lb" "svc" {
   enable_deletion_protection = false
 }
 
-resource "aws_lb_target_group" "webapp" {
-  name        = "ecsWebAppGroup"
+
+// front end target group
+resource "aws_lb_target_group" "fe" {
+  name        = format("%s-fe-target-group", aws_lb.svc.name)
   port        = var.container_port
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
 }
 
-resource "aws_lb_target_group" "webapp_ec2" {
-  name        = "ecsWebAppGroupEc2"
+// back end target group
+resource "aws_lb_target_group" "be" {
+  depends_on = [
+    aws_lb.svc
+  ]
+  name        = format("%s-be-target-group", aws_lb.svc.name)
   port        = var.container_port
   protocol    = "HTTP"
   target_type = "instance"
@@ -29,11 +35,8 @@ resource "aws_lb_target_group" "webapp_ec2" {
   }
 }
 
-resource "aws_autoscaling_attachment" "lb" {
-  autoscaling_group_name = aws_autoscaling_group.group.name
-  lb_target_group_arn    = aws_lb_target_group.webapp_ec2.arn
-}
 
+// listener response 403 by default
 resource "aws_lb_listener" "http" {
   port              = "80"
   load_balancer_arn = aws_lb.svc.arn
@@ -43,19 +46,19 @@ resource "aws_lb_listener" "http" {
     fixed_response {
       content_type = "text/plain"
       status_code  = 403
-      message_body = "403 ahihi"
+      message_body = ""
     }
   }
 }
 
-resource "aws_lb_listener_rule" "http" {
+resource "aws_lb_listener_rule" "fe" {
 
   listener_arn = aws_lb_listener.http.arn
-  priority     = 100
+  priority     = 2
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.webapp.arn
+    target_group_arn = aws_lb_target_group.fe.arn
   }
   condition {
     path_pattern {
@@ -64,18 +67,18 @@ resource "aws_lb_listener_rule" "http" {
   }
 }
 
-resource "aws_lb_listener_rule" "httpec2" {
+resource "aws_lb_listener_rule" "be" {
 
   listener_arn = aws_lb_listener.http.arn
-  priority     = 101
+  priority     = 1
 
   action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.webapp_ec2.arn
+    target_group_arn = aws_lb_target_group.be.arn
   }
   condition {
     path_pattern {
-      values = ["/ec2"]
+      values = ["/api"]
     }
   }
 }

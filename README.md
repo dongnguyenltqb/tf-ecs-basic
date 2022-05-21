@@ -14,5 +14,6 @@ include:
 - ALB listener rule
 - IAM role for ecsCluster
 - IAM task execution role
+- Secret manager
 
 run: `terraform apply -var-file dev.tfvar`
