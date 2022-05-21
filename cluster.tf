@@ -5,27 +5,7 @@ resource "aws_ecs_cluster" "cluster" {
   name = var.cluster_name
 }
 
-// EC2 provider
-resource "aws_ecs_capacity_provider" "ec2" {
-  name = "ec2_t3"
-
-  depends_on = [
-    aws_autoscaling_group.group
-  ]
-  auto_scaling_group_provider {
-    auto_scaling_group_arn         = aws_autoscaling_group.group.arn
-    managed_termination_protection = "DISABLED"
-
-    // manage auto scaling
-    managed_scaling {
-      maximum_scaling_step_size = 10
-      minimum_scaling_step_size = 1
-      status                    = "ENABLED"
-      target_capacity           = 100
-    }
-  }
-}
-
+// CLuster capacity provider
 resource "aws_ecs_cluster_capacity_providers" "provider" {
   depends_on = [
     aws_ecs_capacity_provider.ec2
@@ -40,3 +20,23 @@ resource "aws_ecs_cluster_capacity_providers" "provider" {
   #   capacity_provider = "FARGATE"
   # }
 }
+
+// EC2 provider
+resource "aws_ecs_capacity_provider" "ec2" {
+  name = "ec2_t3"
+  depends_on = [
+    aws_autoscaling_group.group
+  ]
+  auto_scaling_group_provider {
+    auto_scaling_group_arn         = aws_autoscaling_group.group.arn
+    managed_termination_protection = "ENABLED"
+    // manage auto scaling
+    managed_scaling {
+      maximum_scaling_step_size = 10
+      minimum_scaling_step_size = 1
+      status                    = "ENABLED"
+      target_capacity           = 100
+    }
+  }
+}
+

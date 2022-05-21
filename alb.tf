@@ -11,7 +11,7 @@ resource "aws_lb" "svc" {
 // front end target group
 resource "aws_lb_target_group" "fe" {
   name        = format("%s-fe-target-group", aws_lb.svc.name)
-  port        = var.container_port
+  port        = var.fe_container_port
   protocol    = "HTTP"
   target_type = "ip"
   vpc_id      = var.vpc_id
@@ -23,14 +23,14 @@ resource "aws_lb_target_group" "be" {
     aws_lb.svc
   ]
   name        = format("%s-be-target-group", aws_lb.svc.name)
-  port        = var.container_port
+  port        = var.be_container_port
   protocol    = "HTTP"
   target_type = "instance"
   vpc_id      = var.vpc_id
   health_check {
     enabled  = true
     path     = "/"
-    port     = var.container_port
+    port     = var.be_container_port
     protocol = "HTTP"
   }
 }
@@ -51,27 +51,23 @@ resource "aws_lb_listener" "http" {
   }
 }
 
-resource "aws_lb_listener_rule" "fe" {
-
-  listener_arn = aws_lb_listener.http.arn
-  priority     = 2
-
-  action {
-    type             = "forward"
-    target_group_arn = aws_lb_target_group.fe.arn
-  }
-  condition {
-    path_pattern {
-      values = ["/"]
-    }
-  }
-}
+# resource "aws_lb_listener_rule" "fe" {
+#   listener_arn = aws_lb_listener.http.arn
+#   priority     = 2
+#   action {
+#     type             = "forward"
+#     target_group_arn = aws_lb_target_group.fe.arn
+#   }
+#   condition {
+#     path_pattern {
+#       values = ["/"]
+#     }
+#   }
+# }
 
 resource "aws_lb_listener_rule" "be" {
-
   listener_arn = aws_lb_listener.http.arn
   priority     = 1
-
   action {
     type             = "forward"
     target_group_arn = aws_lb_target_group.be.arn

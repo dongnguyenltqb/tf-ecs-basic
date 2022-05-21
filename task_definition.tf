@@ -14,13 +14,13 @@ resource "aws_ecs_task_definition" "fe" {
         "memory" : 2048,
         "portMappings" : [
           {
-            "containerPort" : var.container_port,
+            "containerPort" : var.fe_container_port,
             "protocol" : "http"
           }
         ],
         "essential" : true,
         "healthCheck" : {
-          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.container_port)],
+          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.fe_container_port)],
           "interval" : 5,
           "timeout" : 5,
           "retries" : 2,
@@ -38,8 +38,8 @@ resource "aws_ecs_task_definition" "be" {
   ]
   family                   = var.be_task_definition_family
   requires_compatibilities = ["EC2"]
-  cpu                      = 1024
-  memory                   = 2048
+  cpu                      = 2048
+  memory                   = 3072
   network_mode             = "host"
   runtime_platform {
     cpu_architecture        = "X86_64"
@@ -52,25 +52,24 @@ resource "aws_ecs_task_definition" "be" {
       {
         "name" : var.container_name,
         "image" : var.image_url,
-        "cpu" : 1024,
-        "memory" : 2048,
+        "cpu" : 2048,
+        "memory" : 3072,
         "secrets" : [
-          for key,value in var.secrets : {
+          for key, value in var.secrets : {
             "name" : key,
             "valueFrom" : format("%s:%s:%s:", aws_secretsmanager_secret.app.id, key, tolist(aws_secretsmanager_secret_version.version.version_stages)[0])
           }
         ],
-
         "portMappings" : [
           {
-            "containerPort" : var.container_port,
-            "hostPort" : var.container_port,
+            "containerPort" : var.be_container_port,
+            "hostPort" : var.be_container_port,
             "protocol" : "tcp"
           }
         ],
         "essential" : true,
         "healthCheck" : {
-          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.container_port)],
+          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.be_container_port)],
           "interval" : 5,
           "timeout" : 5,
           "retries" : 2,

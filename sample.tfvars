@@ -10,9 +10,11 @@ fe_task_definition_family = "frontend-task-def"
 be_task_definition_family = "backend-task-def"
 container_name            = "nodejs"
 image_url                 = "public.ecr.aws/g3k3o5v3/testport3000:latest"
-container_port            = 3000
+fe_container_port         = 80
+be_container_port         = 3000
 secrets = {
   Username = "dongnguyenltqb"
   Password = "hello"
   Age      = "25"
+  Role     = "admin"
 }

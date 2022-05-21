@@ -38,7 +38,11 @@ variable "container_name" {
   type = string
 }
 
-variable "container_port" {
+variable "fe_container_port" {
+  type = number
+}
+
+variable "be_container_port" {
   type = number
 }
 
