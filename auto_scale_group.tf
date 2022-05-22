@@ -1,7 +1,6 @@
 resource "aws_launch_template" "ecs" {
-  name_prefix = "ecsInstanceTemplate"
-  # image_id               = data.aws_ami.amazon-linux-2.id
-  image_id               = "ami-0d84ff23cc77ac9de"
+  name_prefix            = "ecsInstanceTemplate"
+  image_id               = data.aws_ami.amazon-linux-2.id
   instance_type          = "t3.medium"
   vpc_security_group_ids = [aws_security_group.ec2_group.id]
   // register instance to ecs
@@ -63,7 +62,16 @@ data "aws_ami" "amazon-linux-2" {
   owners      = ["amazon"]
   filter {
     name   = "name"
-    values = ["amzn2-ami-hvm*"]
+    values = ["amzn2-ami-ecs-hvm*"]
   }
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+  filter {
+    name   = "architecture"
+    values = ["x86_64"]
+  }
+
 }
 
