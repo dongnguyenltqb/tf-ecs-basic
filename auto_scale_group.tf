@@ -7,6 +7,7 @@ resource "aws_launch_template" "ecs" {
   user_data = base64encode(format(<<EOT
   #!/bin/bash
   echo ECS_CLUSTER=%s >> /etc/ecs/ecs.config
+  echo ECS_IMAGE_PULL_BEHAVIOR=always >> /etc/ecs/ecs.config
 EOT
   , var.cluster_name))
   iam_instance_profile {

@@ -5,6 +5,8 @@ resource "aws_ecs_task_definition" "fe" {
   memory                   = 2048
   network_mode             = "awsvpc"
   execution_role_arn       = aws_iam_role.execution_task.arn
+  tags                     = {}
+  tags_all                 = {}
   container_definitions = jsonencode(
     [
       {

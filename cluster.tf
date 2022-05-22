@@ -31,11 +31,12 @@ resource "aws_ecs_capacity_provider" "ec2" {
     auto_scaling_group_arn         = aws_autoscaling_group.group.arn
     managed_termination_protection = "ENABLED"
     // manage auto scaling
+    // https://docs.aws.amazon.com/AmazonECS/latest/developerguide/cluster-auto-scaling.html
     managed_scaling {
       maximum_scaling_step_size = 10
       minimum_scaling_step_size = 1
       status                    = "ENABLED"
-      target_capacity           = 100
+      target_capacity           = 90
     }
   }
 }

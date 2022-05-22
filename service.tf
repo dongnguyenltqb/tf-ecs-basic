@@ -21,6 +21,7 @@
 #   }
 # }
 
+// Service back-end api
 resource "aws_ecs_service" "be" {
   depends_on = [
     aws_lb_target_group.be
@@ -29,14 +30,14 @@ resource "aws_ecs_service" "be" {
   cluster                            = aws_ecs_cluster.cluster.id
   task_definition                    = aws_ecs_task_definition.be.arn
   launch_type                        = "EC2"
-  desired_count                      = 2
+  desired_count                      = 1
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 500
   force_new_deployment               = true
   wait_for_steady_state              = false
   deployment_circuit_breaker {
     enable   = true
-    rollback = false
+    rollback = true
   }
   load_balancer {
     target_group_arn = aws_lb_target_group.be.arn
@@ -46,24 +47,27 @@ resource "aws_ecs_service" "be" {
 }
 
 
-// Service auto scaling
-resource "aws_appautoscaling_target" "be" {
+// Service task scaling
+resource "aws_appautoscaling_target" "be_task" {
   depends_on = [
     aws_ecs_cluster.cluster
   ]
-  max_capacity       = 20
-  min_capacity       = 0
+  max_capacity       = 10
+  min_capacity       = 1
   resource_id        = format("service/%s/%s", var.cluster_name, var.be_service_name)
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
 
-resource "aws_appautoscaling_policy" "ecs_policy" {
+resource "aws_appautoscaling_policy" "ecs_be_task_policy" {
+  depends_on = [
+    aws_appautoscaling_target.be_task
+  ]
   name               = "Number of active connections to targets from the load balancer divided by number of target, metrics in 1 min."
   policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.be.resource_id
-  scalable_dimension = aws_appautoscaling_target.be.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.be.service_namespace
+  resource_id        = aws_appautoscaling_target.be_task.resource_id
+  scalable_dimension = aws_appautoscaling_target.be_task.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.be_task.service_namespace
   target_tracking_scaling_policy_configuration {
     predefined_metric_specification {
       predefined_metric_type = "ALBRequestCountPerTarget"
@@ -74,3 +78,4 @@ resource "aws_appautoscaling_policy" "ecs_policy" {
     scale_out_cooldown = 60
   }
 }
+
