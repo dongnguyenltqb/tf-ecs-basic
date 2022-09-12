@@ -13,14 +13,17 @@ resource "aws_ecs_task_definition" "be" {
   }
   execution_role_arn = aws_iam_role.execution_task.arn
   task_role_arn      = aws_iam_role.task.arn
+  # recommend to turn on log for container
+  # https://docs.aws.amazon.com/AmazonECS/latest/developerguide/using_awslogs.html
   container_definitions = jsonencode(
     [
       {
         "name" : var.container_name,
         "image" : var.image_url,
-        "cpu" : 2048,
-        "memory" : 3072,
+        "cpu" : 1024,
+        "memory" : 2048,
         "secrets" : [
+          # recommend to store secret in AWS Secrets Manager
           for key, value in var.secrets : {
             "name" : key,
             "valueFrom" : format("%s:%s:%s:", aws_secretsmanager_secret.app.id, key, tolist(aws_secretsmanager_secret_version.version.version_stages)[0])

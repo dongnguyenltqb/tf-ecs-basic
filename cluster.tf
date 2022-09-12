@@ -39,7 +39,7 @@ resource "aws_ecs_capacity_provider" "ec2" {
       maximum_scaling_step_size = 10
       minimum_scaling_step_size = 1
       status                    = "ENABLED"
-      target_capacity           = 50
+      target_capacity           = 99
     }
   }
   tags = merge(local.tags, var.tags)
