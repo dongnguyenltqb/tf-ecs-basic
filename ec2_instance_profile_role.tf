@@ -1,6 +1,6 @@
 // Instance Role help ec2 instance register itself to ecs cluster
 resource "aws_iam_role" "ec2_instances" {
-  name = format("%EC2InstanceRoleForASG", var.cluster_name)
+  name = format("%sEC2InstanceRoleForASG", var.cluster_name)
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -23,7 +23,7 @@ resource "aws_iam_role_policy_attachment" "AmazonEC2ContainerServiceforEC2Role_a
 }
 
 resource "aws_iam_instance_profile" "ecs" {
-  name     = format("%EC2InstanceProfileForASG", var.cluster_name)
+  name     = format("%sEC2InstanceProfileForASG", var.cluster_name)
   role     = aws_iam_role.ec2_instances.name
   tags     = merge(local.tags, var.tags)
   tags_all = merge(local.tags, var.tags)

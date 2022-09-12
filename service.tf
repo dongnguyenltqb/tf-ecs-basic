@@ -11,7 +11,7 @@ resource "aws_ecs_service" "be" {
   deployment_minimum_healthy_percent = 100
   deployment_maximum_percent         = 500
   force_new_deployment               = true
-  wait_for_steady_state              = false
+  wait_for_steady_state              = true
   deployment_circuit_breaker {
     enable   = true
     rollback = true
@@ -22,37 +22,3 @@ resource "aws_ecs_service" "be" {
     container_port   = var.be_container_port
   }
 }
-
-
-// Service task scaling
-resource "aws_appautoscaling_target" "be_task" {
-  depends_on = [
-    aws_ecs_cluster.cluster
-  ]
-  max_capacity       = 10
-  min_capacity       = 1
-  resource_id        = format("service/%s/%s", var.cluster_name, var.be_service_name)
-  scalable_dimension = "ecs:service:DesiredCount"
-  service_namespace  = "ecs"
-}
-
-resource "aws_appautoscaling_policy" "ecs_be_task_policy" {
-  depends_on = [
-    aws_appautoscaling_target.be_task
-  ]
-  name               = "Number of active connections to targets from the load balancer divided by number of target, metrics in 1 min."
-  policy_type        = "TargetTrackingScaling"
-  resource_id        = aws_appautoscaling_target.be_task.resource_id
-  scalable_dimension = aws_appautoscaling_target.be_task.scalable_dimension
-  service_namespace  = aws_appautoscaling_target.be_task.service_namespace
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ALBRequestCountPerTarget"
-      resource_label         = format("%s/%s", aws_lb.svc.arn_suffix, aws_lb_target_group.be.arn_suffix)
-    }
-    target_value       = 200
-    scale_in_cooldown  = 60
-    scale_out_cooldown = 60
-  }
-}
-

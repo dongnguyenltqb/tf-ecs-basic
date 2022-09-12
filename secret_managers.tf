@@ -1,6 +1,6 @@
 // Secret
 resource "aws_secretsmanager_secret" "app" {
-  name = "ecsBeTaskSecret1"
+  name = format("%s%sAppSecret", var.cluster_name, var.be_service_name)
 }
 
 resource "aws_secretsmanager_secret_version" "version" {

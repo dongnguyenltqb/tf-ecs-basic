@@ -1,39 +1,3 @@
-resource "aws_ecs_task_definition" "fe" {
-  family                   = var.fe_task_definition_family
-  requires_compatibilities = ["FARGATE"]
-  cpu                      = 1024
-  memory                   = 2048
-  network_mode             = "awsvpc"
-  execution_role_arn       = aws_iam_role.execution_task.arn
-  tags                     = {}
-  tags_all                 = {}
-  container_definitions = jsonencode(
-    [
-      {
-        "name" : var.container_name,
-        "image" : var.image_url,
-        "cpu" : 1024,
-        "memory" : 2048,
-        "portMappings" : [
-          {
-            "containerPort" : var.fe_container_port,
-            "protocol" : "http"
-          }
-        ],
-        "essential" : true,
-        "healthCheck" : {
-          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.fe_container_port)],
-          "interval" : 5,
-          "timeout" : 5,
-          "retries" : 2,
-          "startPeriod" : 5
-        }
-      }
-    ]
-  )
-}
-
-
 resource "aws_ecs_task_definition" "be" {
   depends_on = [
     aws_secretsmanager_secret.app
@@ -69,14 +33,7 @@ resource "aws_ecs_task_definition" "be" {
             "protocol" : "tcp"
           }
         ],
-        "essential" : true,
-        "healthCheck" : {
-          "command" : ["CMD-SHELL", format("curl -f http://localhost:%s/ || exit 1", var.be_container_port)],
-          "interval" : 5,
-          "timeout" : 5,
-          "retries" : 2,
-          "startPeriod" : 5
-        }
+        "essential" : true
       }
     ]
   )

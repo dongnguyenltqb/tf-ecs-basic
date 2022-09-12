@@ -1,8 +1,10 @@
-resource "aws_launch_template" "ecs" {
-  name_prefix            = format("%EC2ASGInstanceTemplate", var.cluster_name)
-  image_id               = data.aws_ami.amazon-linux-2.id
-  instance_type          = "t3.medium"
+resource "aws_launch_template" "asg" {
+  name          = format("%sECSEC2ASGInstanceTemplate", var.cluster_name)
+  image_id      = data.aws_ami.amazon-linux-2.id
+  instance_type = "t3.medium"
+
   vpc_security_group_ids = [aws_security_group.ec2_group.id]
+
   // register instance to ecs
   user_data = base64encode(format(<<EOT
   #!/bin/bash
@@ -34,18 +36,18 @@ EOT
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = format("autoScaleGroup %s", var.cluster_name)
+      Name = format("ASGforECS%s", var.cluster_name)
     }
   }
 }
 
 resource "aws_autoscaling_group" "group" {
-  availability_zones    = var.availability_zones
+  vpc_zone_identifier   = var.subnets
   health_check_type     = "ELB"
   desired_capacity      = 0
   max_size              = 100
   min_size              = 1
-  protect_from_scale_in = false
+  protect_from_scale_in = true
   force_delete          = true
   tag {
     key                 = "AmazonECSManaged"
@@ -53,7 +55,7 @@ resource "aws_autoscaling_group" "group" {
     propagate_at_launch = true
   }
   launch_template {
-    id      = aws_launch_template.ecs.id
+    name    = aws_launch_template.asg.name
     version = "$Latest"
   }
   lifecycle {
