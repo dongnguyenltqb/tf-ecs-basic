@@ -14,6 +14,14 @@ variable "vpc_id" {
   type = string
 }
 
+variable "cluster_name" {
+  type = string
+}
+
+variable "tags" {
+  type = map(any)
+}
+
 variable "fe_service_name" {
   type = string
 }

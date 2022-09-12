@@ -1,5 +1,5 @@
 resource "aws_launch_template" "ecs" {
-  name_prefix            = "ecsInstanceTemplate"
+  name_prefix            = format("%EC2ASGInstanceTemplate", var.cluster_name)
   image_id               = data.aws_ami.amazon-linux-2.id
   instance_type          = "t3.medium"
   vpc_security_group_ids = [aws_security_group.ec2_group.id]
@@ -29,6 +29,8 @@ EOT
       delete_on_termination = true
     }
   }
+  tags     = merge(local.tags, var.tags)
+  tags_all = merge(local.tags, var.tags)
   tag_specifications {
     resource_type = "instance"
     tags = {
@@ -40,7 +42,7 @@ EOT
 resource "aws_autoscaling_group" "group" {
   availability_zones    = var.availability_zones
   health_check_type     = "ELB"
-  desired_capacity      = 1
+  desired_capacity      = 0
   max_size              = 100
   min_size              = 1
   protect_from_scale_in = false
@@ -53,6 +55,9 @@ resource "aws_autoscaling_group" "group" {
   launch_template {
     id      = aws_launch_template.ecs.id
     version = "$Latest"
+  }
+  lifecycle {
+    ignore_changes = [desired_capacity, max_size, min_size]
   }
 }
 
