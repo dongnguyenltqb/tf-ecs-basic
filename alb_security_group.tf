@@ -1,5 +1,5 @@
 resource "aws_security_group" "alb" {
-  name        = format("%s%sEcsServiceALBSg", var.cluster_name, var.be_service_name)
+  name        = format("%s%sEcsServiceAlbSg", var.cluster_name, var.be_service_name)
   description = "Allow http,https traffic"
   vpc_id      = var.vpc_id
 
@@ -18,4 +18,7 @@ resource "aws_security_group" "alb" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
+  tags_all = merge(local.tags, var.tags, {
+    Name = format("%s%sEcsServiceALBSg", var.cluster_name, var.be_service_name)
+  })
 }

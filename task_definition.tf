@@ -4,8 +4,8 @@ resource "aws_ecs_task_definition" "be" {
   ]
   family                   = var.be_task_definition_family
   requires_compatibilities = ["EC2"]
-  cpu                      = 2048
-  memory                   = 3072
+  cpu                      = 1024
+  memory                   = 1024
   network_mode             = "host"
   runtime_platform {
     cpu_architecture        = "X86_64"
@@ -21,7 +21,7 @@ resource "aws_ecs_task_definition" "be" {
         "name" : var.container_name,
         "image" : var.image_url,
         "cpu" : 1024,
-        "memory" : 2048,
+        "memory" : 1024,
         "secrets" : [
           # recommend to store secret in AWS Secrets Manager
           for key, value in var.secrets : {

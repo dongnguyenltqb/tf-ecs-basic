@@ -1,5 +1,5 @@
 resource "aws_lb" "svc" {
-  name                       = "app"
+  name                       = "api"
   internal                   = false
   load_balancer_type         = "application"
   security_groups            = [aws_security_group.alb.id]

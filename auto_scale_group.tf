@@ -1,7 +1,7 @@
 resource "aws_launch_template" "asg" {
-  name          = format("%sECSEC2ASGInstanceTemplate", var.cluster_name)
+  name          = format("%sEcsEc2AsgLaunchTemplate", var.cluster_name)
   image_id      = data.aws_ami.amazon-linux-2.id
-  instance_type = "t3.medium"
+  instance_type = "t3a.small"
 
   vpc_security_group_ids = [aws_security_group.ec2_group.id]
 
@@ -36,16 +36,17 @@ EOT
   tag_specifications {
     resource_type = "instance"
     tags = {
-      Name = format("ASGforECS%s", var.cluster_name)
+      Name = format("Ec2FromEscAsg%s", var.cluster_name)
     }
   }
 }
 
 resource "aws_autoscaling_group" "group" {
+  name_prefix           = format("%s-", var.cluster_name)
   vpc_zone_identifier   = var.subnets
   health_check_type     = "ELB"
-  desired_capacity      = 0
-  max_size              = 100
+  desired_capacity      = 1
+  max_size              = 1
   min_size              = 1
   protect_from_scale_in = true
   force_delete          = true
@@ -53,6 +54,15 @@ resource "aws_autoscaling_group" "group" {
     key                 = "AmazonECSManaged"
     value               = true
     propagate_at_launch = true
+  }
+
+  dynamic "tag" {
+    for_each = local.tags
+    content {
+      key                 = tag.key
+      value               = tag.value
+      propagate_at_launch = true
+    }
   }
   launch_template {
     name    = aws_launch_template.asg.name

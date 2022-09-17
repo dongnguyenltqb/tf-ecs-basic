@@ -7,7 +7,8 @@ variable "region" {
 }
 
 variable "subnets" {
-  type = list(string)
+  type        = list(string)
+  description = "require at least 2 subnets"
 }
 
 variable "cluster_name" {

@@ -1,4 +1,4 @@
-// listener response 403 by default
+// listener response 404 by default
 resource "aws_lb_listener" "http" {
   port              = "80"
   load_balancer_arn = aws_lb.svc.arn

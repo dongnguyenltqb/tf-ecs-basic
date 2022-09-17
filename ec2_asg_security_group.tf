@@ -1,7 +1,6 @@
-// asg
 resource "aws_security_group" "ec2_group" {
   vpc_id      = var.vpc_id
-  name        = "ecsEc2GroupSg"
+  name        = format("%sEcsEc2SgForAsg", var.cluster_name)
   description = "Allow http,https traffic"
 
   ingress {
@@ -19,4 +18,8 @@ resource "aws_security_group" "ec2_group" {
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
+
+  tags_all = merge(local.tags, var.tags, {
+    Name = format("%sECSEC2SgForASG", var.cluster_name)
+  })
 }

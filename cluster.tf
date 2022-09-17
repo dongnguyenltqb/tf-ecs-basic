@@ -23,8 +23,7 @@ resource "aws_ecs_cluster_capacity_providers" "provider" {
   }
 }
 
-// EC2 provider
-// use resource from EC2-ASG
+// EC2 provider, use resource from EC2-ASG
 resource "aws_ecs_capacity_provider" "ec2" {
   name = format("%sEC2Provider", var.cluster_name)
   depends_on = [

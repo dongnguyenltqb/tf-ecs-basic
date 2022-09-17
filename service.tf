@@ -1,7 +1,7 @@
-// Service back-end api
 resource "aws_ecs_service" "be" {
   depends_on = [
-    aws_lb_target_group.be
+    aws_lb_target_group.be,
+    aws_autoscaling_group.group
   ]
   name                               = var.be_service_name
   cluster                            = aws_ecs_cluster.cluster.id
@@ -21,4 +21,7 @@ resource "aws_ecs_service" "be" {
     container_name   = var.container_name
     container_port   = var.be_container_port
   }
+  tags = merge(local.tags, var.tags, {
+    Name = var.be_service_name
+  })
 }
